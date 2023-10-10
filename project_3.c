@@ -6,6 +6,7 @@
 //             decimal version of their binary value 0-9.
 //kah bruh -nussy
 //test tset test
+//bruh
 //******************************************************************************
 //Global Variables:
 int num1 = 0xA500; //Variables for 7-seg display
