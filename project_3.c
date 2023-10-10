@@ -42,16 +42,7 @@ void main() {
                                                          ;of the register.
                     CMP R3, #1                           ;If PA0 is pressed GPIOA_IDR has a value of 1 so R1 is compared to 1 and if
                                                          ;they are the same jumps to PAZero
-                    BEQ PAZero
-               B Display
-
-               PAZero:
-                    MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
-                    MOVT R0, #HI_ADDR(GPIOA_IDR+0)       ;Puts the high address of GPIOA_IDR into R0
-                    LDR R1, [R0]                         ;Loads the value saved in R1 into the register with its address saved in R0, in
-                                                         ;this case GPIOA_IDR
-                    AND R3, R1, #1                       ;ANDs R1 with the number 1 in order to clear any high bits in the upper 32 bits
-                                                         ;of the register.
+                    BNE Display
           }
           if(GPIOE_ODR.B11 == 1){
                switch(num1){
@@ -82,13 +73,19 @@ void main() {
 
                }
           }
+          GPIOE_ODR = num1;
+          GPIOE_ODR = num2;
           asm{
+               PAZero:
+                    MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
+                    MOVT R0, #HI_ADDR(GPIOA_IDR+0)       ;Puts the high address of GPIOA_IDR into R0
+                    LDR R1, [R0]                         ;Loads the value saved in R1 into the register with its address saved in R0, in
+                                                         ;this case GPIOA_IDR
+                    AND R3, R1, #1                       ;ANDs R1 with the number 1 in order to clear any high bits in the upper 32 bits
+                                                         ;of the register.
                     CMP R3, #1                           ;If PA0 is pressed GPIOA_IDR has a value of 1 so R1 is compared to 1 and if
                                                          ;they are the same jumps to PAZero
                     BEQ PAZero
-
-
-
 
                     MOVW R0, #LO_ADDR(_num1)             ;Puts the low address of num1 into R0
                     MOVT R0, #HI_ADDR(_num1)             ;Puts the high address of num1 into R0

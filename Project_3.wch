@@ -11,4 +11,5 @@
 <item n="_prevPD0" r="0" s="True" e="False" i="9"/>
 <item n="GPIOD_IDR" r="2" s="False" e="False" i="10"/>
 <item n="_prevPD4" r="0" s="True" e="False" i="11"/>
+<item n="_test" r="0" s="True" e="False" i="12"/>
 </WCH>
