@@ -4,6 +4,7 @@
 //Description: PE13 and PE15 need to be high in order for the 7-segments to display a number. PE11 switch which
 //             7-segment is being displayed, PE8, PE10, PE12, & PE14 are data pins which will display the
 //             decimal version of their binary value 0-9.
+//kah bruh -nussy
 //******************************************************************************
 //Global Variables:
 int num1 = 0xA500; //Variables for 7-seg display
