@@ -6,9 +6,10 @@
 //             decimal version of their binary value 0-9.
 //******************************************************************************
 //Global Variables:
-int num1 = 0xA000; //Variables for 7-seg display
+int num1 = 0xA000; //Variables for 7-seg display initially set to 3
 int prevPA0, prevPD0 = 0, prevPD4=0; //holds previous value of PA0 for falling/rising edge purposes
 int counter = 0; //counter for objective 4
+int test=0;
 
 //******************************************************************************
 //Main Function
@@ -26,10 +27,11 @@ void main() {
      GPIOE_CRH = 0x33333333;
 //******************************************************************************
 //Objective 2
+     for(;;){
           GPIOE_ODR = num1;   //sets GPIOE equal to num1 variable which will then be displayed on the MET1155
 //******************************************************************************
 //Objective 3 and Bonus Obj 1
-for(;;){
+
           asm{
                CheckButton:
                     MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
@@ -39,7 +41,7 @@ for(;;){
                     AND R3, R1, #1                       ;ANDs R1 with the number 1 in order to clear any high bits in the upper 32 bits
                                                          ;of the register.
                     CMP R3, #1                           ;If PA0 is pressed GPIOA_IDR has a value of 1 so R1 is compared to 1 and if
-                                                         ;they are the same jumps to LABEL2
+                                                         ;they are the same jumps to PAZero
                     BEQ PAZero
                B Display
 
@@ -50,26 +52,32 @@ for(;;){
                                                          ;this case GPIOA_IDR
                     AND R3, R1, #1                       ;ANDs R1 with the number 1 in order to clear any high bits in the upper 32 bits
                                                          ;of the register.
+          }
+          test++;
+          asm{
                     CMP R3, #1                           ;If PA0 is pressed GPIOA_IDR has a value of 1 so R1 is compared to 1 and if
-                                                         ;they are the same jumps to LABEL2
+                                                         ;they are the same jumps to PAZero
                     BEQ PAZero
 
-                    MOVW R0, #LO_ADDR(_num1)       ;Puts the low address of num1 into R0
-                    MOVT R0, #HI_ADDR(_num1)       ;Puts the high address of num1 into R0
-                    LDR R2, [R0]                   ;puts the value of num1 into R2
 
-                    AND R3, R2, #0x800
-                    CMP R3, #0x800
-                    BEQ SetLow
-                    B SetHigh
+
+
+                    MOVW R0, #LO_ADDR(_num1)             ;Puts the low address of num1 into R0
+                    MOVT R0, #HI_ADDR(_num1)             ;Puts the high address of num1 into R0
+                    LDR R2, [R0]                         ;puts the value of num1 into R2
+
+                    AND R3, R2, #0x800                   ;ANDs with hexidecimal 800 this is when just bit 11 is high
+                    CMP R3, #0x800                       ;looks for if bit 11 is high in GPIOA
+                    BEQ SetLow                           ;if it is jumps to setlow
+                    B SetHigh                            ;if not jumps to sethigh
 
                SetLow:
-                    MOVW R4, #0xF7FF
+                    MOVW R4, #0xF7FF                     ;sets bit 11 low
                     AND R2, R4
                B Display
 
                SetHigh:
-                    ADD R2, #0x800
+                    ADD R2, #0x800                       ;sets bit 11 high
                B Display
 
                Display:
@@ -80,7 +88,7 @@ for(;;){
                     MOVW R0, #LO_ADDR(_num1)       ;Puts the low address of num1 into R0
                     MOVT R0, #HI_ADDR(_num1)       ;Puts the high address of num1 into R0
                     STR R2, [R0]                   ;puts the value of num1 into R2
-     }
+          }
 
 //******************************************************************************
 //objective 4
@@ -89,30 +97,32 @@ for(;;){
                PrevPD0 = 1;
               if(counter > 9) counter = 0;
           }
-          if(GPIOD_IDR.B4 == 1 & PrevPD4 == 0) {
+          if(GPIOD_IDR.B4 == 1 & PrevPD4 == 0){
               counter--;
               PrevPD4 = 1;
-              if(counter < 0){
-              counter = 9;}
+              if(counter < 0) counter = 9;
           }
 
-               switch (counter) {
-                      case 9: GPIOE_ODR = 0xA000; break;
-                      case 0: GPIOE_ODR = 0xA100; break;
-                      case 1: GPIOE_ODR = 0xA400; break;
-                      case 2: GPIOE_ODR = 0xA500; break;
-                      case 3: GPIOE_ODR = 0xB000; break;
-                      case 4: GPIOE_ODR = 0xB100; break;
-                      case 5: GPIOE_ODR = 0xB400; break;
-                      case 6: GPIOE_ODR = 0xB500; break;
-                      case 7: GPIOE_ODR = 0xE000; break;
-                      case 8: GPIOE_ODR = 0xE100; break;
-               }
+          switch (counter) {
+               case 9: num1 = 0xA000; break;
+               case 0: num1 = 0xA100; break;
+               case 1: num1 = 0xA400; break;
+               case 2: num1 = 0xA500; break;
+               case 3: num1 = 0xB000; break;
+               case 4: num1 = 0xB100; break;
+               case 5: num1 = 0xB400; break;
+               case 6: num1 = 0xB500; break;
+               case 7: num1 = 0xE000; break;
+               case 8: num1 = 0xE100; break;
+          }
           if(GPIOD_IDR.B0 == 0 & PrevPD0 == 1){
                    prevPD0 = 0;
           }
           if(GPIOD_IDR.B4 == 0 & PrevPD4 == 1){
                    prevPD4 = 0;
           }
+//******************************************************************************
+//Bonus Objective 2
+
      }
 }
