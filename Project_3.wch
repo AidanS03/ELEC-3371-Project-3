@@ -7,4 +7,7 @@
 <item n="R3" r="0" s="False" e="False" i="5"/>
 <item n="GPIOE_ODR" r="0" s="False" e="False" i="6"/>
 <item n="_num1" r="2" s="True" e="False" i="7"/>
+<item n="_counter" r="0" s="True" e="False" i="8"/>
+<item n="_prevPD0" r="0" s="True" e="False" i="9"/>
+<item n="GPIOD_IDR" r="2" s="False" e="False" i="10"/>
 </WCH>
