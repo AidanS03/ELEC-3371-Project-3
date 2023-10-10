@@ -6,7 +6,7 @@
 //             decimal version of their binary value 0-9.
 //******************************************************************************
 //Global Variables:
-int num1 = 0xA000; //Variables for 7-seg display initially set to 3
+int num1 = 0xA000, num2 = 0xA000; //Variables for 7-seg display initially set to 0
 int prevPA0, prevPD0 = 0, prevPD4=0; //holds previous value of PA0 for falling/rising edge purposes
 int counter = 0; //counter for objective 4
 int test=0;
@@ -53,7 +53,35 @@ void main() {
                     AND R3, R1, #1                       ;ANDs R1 with the number 1 in order to clear any high bits in the upper 32 bits
                                                          ;of the register.
           }
-          test++;
+          if(GPIOE_ODR.B11 == 1){
+               switch(num1){
+                    case 0xA800: num2 = 0xA000; break;
+                    case 0xA900: num2 = 0xE100; break;
+                    case 0xAC00: num2 = 0xE000; break;
+                    case 0xAD00: num2 = 0xB500; break;
+                    case 0xB800: num2 = 0xB400; break;
+                    case 0xB900: num2 = 0xB100; break;
+                    case 0xBC00: num2 = 0xB000; break;
+                    case 0xBD00: num2 = 0xA500; break;
+                    case 0xE800: num2 = 0xA400; break;
+                    case 0xE900: num2 = 0xA100; break;
+               }
+          }
+          if(GPIOE_ODR.B11 == 0){
+               switch(num1){
+                    case 0xA000: num2 = 0xE900; break;
+                    case 0xA100: num2 = 0xE800; break;
+                    case 0xA400: num2 = 0xBD00; break;
+                    case 0xA500: num2 = 0xBC00; break;
+                    case 0xB000: num2 = 0xB900; break;
+                    case 0xB100: num2 = 0xB800; break;
+                    case 0xB400: num2 = 0xB100; break;
+                    case 0xB500: num2 = 0xAD00; break;
+                    case 0xE000: num2 = 0xAC00; break;
+                    case 0xE100: num2 = 0xA900; break;
+
+               }
+          }
           asm{
                     CMP R3, #1                           ;If PA0 is pressed GPIOA_IDR has a value of 1 so R1 is compared to 1 and if
                                                          ;they are the same jumps to PAZero
