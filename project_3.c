@@ -5,6 +5,7 @@
 //             7-segment is being displayed, PE8, PE10, PE12, & PE14 are data pins which will display the
 //             decimal version of their binary value 0-9.
 //aidan remove
+//hehehe I C U P
 //******************************************************************************
 //Global Variables:
 int num1 = 0xA500; //Variables for 7-seg display
