@@ -6,10 +6,9 @@
 <item n="R2" r="2" s="False" e="False" i="4"/>
 <item n="R3" r="0" s="False" e="False" i="5"/>
 <item n="GPIOE_ODR" r="2" s="False" e="False" i="6"/>
-<item n="_num1" r="2" s="True" e="False" i="7"/>
-<item n="_counter" r="0" s="True" e="False" i="8"/>
-<item n="_prevPD0" r="0" s="True" e="False" i="9"/>
-<item n="GPIOD_IDR" r="2" s="False" e="False" i="10"/>
-<item n="_prevPD4" r="0" s="True" e="False" i="11"/>
-<item n="_test" r="0" s="True" e="False" i="12"/>
+<item n="_counter" r="0" s="True" e="False" i="7"/>
+<item n="_prevPD0" r="0" s="True" e="False" i="8"/>
+<item n="GPIOD_IDR" r="2" s="False" e="False" i="9"/>
+<item n="_prevPD4" r="0" s="True" e="False" i="10"/>
+<item n="_val" r="2" s="True" e="False" i="11"/>
 </WCH>

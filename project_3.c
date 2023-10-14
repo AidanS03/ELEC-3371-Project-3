@@ -6,7 +6,9 @@
 //             decimal version of their binary value 0-9.
 //******************************************************************************
 //Global Variables:
-int num1 = 0xA000, num2 = 0xA000; //Variables for 7-seg display initially set to 0
+int val = 0xA000;
+int num1[10] = {0xA000, 0xA100, 0xA400, 0xA500, 0xB000, 0xB100, 0xB400, 0xB500, 0xE000, 0xE100};
+int num2[10] = {0xA800, 0xA900, 0xAC00, 0xAD00, 0xB800, 0xB900, 0xBC00, 0xBD00, 0xE800, 0xE900}; //Variables for 7-seg display initially set to 0
 int prevPA0, prevPD0 = 0, prevPD4=0; //holds previous value of PA0 for falling/rising edge purposes
 int counter = 0; //counter for objective 4
 int test=0;
@@ -28,12 +30,16 @@ void main() {
 //******************************************************************************
 //Objective 2
      for(;;){
-          GPIOE_ODR = num1;   //sets GPIOE equal to num1 variable which will then be displayed on the MET1155
+          GPIOE_ODR = val;   //sets GPIOE equal to num1 variable which will then be displayed on the MET1155
 //******************************************************************************
 //Objective 3 and Bonus Obj 1
 
           asm{
                CheckButton:
+                    MOVW R0, #LO_ADDR(_val)             ;Puts the low address of num1 into R0
+                    MOVT R0, #HI_ADDR(_val)             ;Puts the high address of num1 into R0
+                    LDR R2, [R0]                         ;puts the value of num1 into R2
+                    
                     MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
                     MOVT R0, #HI_ADDR(GPIOA_IDR+0)       ;Puts the high address of GPIOA_IDR into R0
                     LDR R1, [R0]                         ;Loads the value saved in R1 into the register with its address saved in R0, in
@@ -43,39 +49,7 @@ void main() {
                     CMP R3, #1                           ;If PA0 is pressed GPIOA_IDR has a value of 1 so R1 is compared to 1 and if
                                                          ;they are the same jumps to PAZero
                     BNE Display
-          }
-          if(GPIOE_ODR.B11 == 1){
-               switch(num1){
-                    case 0xA800: num2 = 0xA000; break;
-                    case 0xA900: num2 = 0xE100; break;
-                    case 0xAC00: num2 = 0xE000; break;
-                    case 0xAD00: num2 = 0xB500; break;
-                    case 0xB800: num2 = 0xB400; break;
-                    case 0xB900: num2 = 0xB100; break;
-                    case 0xBC00: num2 = 0xB000; break;
-                    case 0xBD00: num2 = 0xA500; break;
-                    case 0xE800: num2 = 0xA400; break;
-                    case 0xE900: num2 = 0xA100; break;
-               }
-          }
-          if(GPIOE_ODR.B11 == 0){
-               switch(num1){
-                    case 0xA000: num2 = 0xE900; break;
-                    case 0xA100: num2 = 0xE800; break;
-                    case 0xA400: num2 = 0xBD00; break;
-                    case 0xA500: num2 = 0xBC00; break;
-                    case 0xB000: num2 = 0xB900; break;
-                    case 0xB100: num2 = 0xB800; break;
-                    case 0xB400: num2 = 0xB100; break;
-                    case 0xB500: num2 = 0xAD00; break;
-                    case 0xE000: num2 = 0xAC00; break;
-                    case 0xE100: num2 = 0xA900; break;
-
-               }
-          }
-          GPIOE_ODR = num1;
-          GPIOE_ODR = num2;
-          asm{
+                    
                PAZero:
                     MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
                     MOVT R0, #HI_ADDR(GPIOA_IDR+0)       ;Puts the high address of GPIOA_IDR into R0
@@ -87,8 +61,8 @@ void main() {
                                                          ;they are the same jumps to PAZero
                     BEQ PAZero
 
-                    MOVW R0, #LO_ADDR(_num1)             ;Puts the low address of num1 into R0
-                    MOVT R0, #HI_ADDR(_num1)             ;Puts the high address of num1 into R0
+                    MOVW R0, #LO_ADDR(_val)             ;Puts the low address of num1 into R0
+                    MOVT R0, #HI_ADDR(_val)             ;Puts the high address of num1 into R0
                     LDR R2, [R0]                         ;puts the value of num1 into R2
 
                     AND R3, R2, #0x800                   ;ANDs with hexidecimal 800 this is when just bit 11 is high
@@ -110,8 +84,8 @@ void main() {
                     MOVT R0, #HI_ADDR(GPIOE_ODR+0)  ;Get the high address of GPIOE_ODR
                     STR R2, [R0]                    ;Puts the value that is saved in R2 into the register whos address is saved in
 
-                    MOVW R0, #LO_ADDR(_num1)       ;Puts the low address of num1 into R0
-                    MOVT R0, #HI_ADDR(_num1)       ;Puts the high address of num1 into R0
+                    MOVW R0, #LO_ADDR(_val)       ;Puts the low address of num1 into R0
+                    MOVT R0, #HI_ADDR(_val)       ;Puts the high address of num1 into R0
                     STR R2, [R0]                   ;puts the value of num1 into R2
           }
 
@@ -127,18 +101,33 @@ void main() {
               PrevPD4 = 1;
               if(counter < 0) counter = 9;
           }
-
-          switch (counter) {
-               case 9: num1 = 0xA000; break;
-               case 0: num1 = 0xA100; break;
-               case 1: num1 = 0xA400; break;
-               case 2: num1 = 0xA500; break;
-               case 3: num1 = 0xB000; break;
-               case 4: num1 = 0xB100; break;
-               case 5: num1 = 0xB400; break;
-               case 6: num1 = 0xB500; break;
-               case 7: num1 = 0xE000; break;
-               case 8: num1 = 0xE100; break;
+          if(GPIOE_ODR.B11 == 0){
+               switch (counter) {
+                    case 0: val = num1[0]; break;
+                    case 1: val = num1[1]; break;
+                    case 2: val = num1[2]; break;
+                    case 3: val = num1[3]; break;
+                    case 4: val = num1[4]; break;
+                    case 5: val = num1[5]; break;
+                    case 6: val = num1[6]; break;
+                    case 7: val = num1[7]; break;
+                    case 8: val = num1[8]; break;
+                    case 9: val = num1[9]; break;
+               }
+          }
+          if(GPIOE_ODR.B11 == 1){
+               switch (counter) {
+                    case 0: val = num2[0]; break;
+                    case 1: val = num2[1]; break;
+                    case 2: val = num2[2]; break;
+                    case 3: val = num2[3]; break;
+                    case 4: val = num2[4]; break;
+                    case 5: val = num2[5]; break;
+                    case 6: val = num2[6]; break;
+                    case 7: val = num2[7]; break;
+                    case 8: val = num2[8]; break;
+                    case 9: val = num2[9]; break;
+               }
           }
           if(GPIOD_IDR.B0 == 0 & PrevPD0 == 1){
                    prevPD0 = 0;
