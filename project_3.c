@@ -10,8 +10,7 @@ int val = 0xA000;
 int num1[10] = {0xA000, 0xA100, 0xA400, 0xA500, 0xB000, 0xB100, 0xB400, 0xB500, 0xE000, 0xE100};
 int num2[10] = {0xA800, 0xA900, 0xAC00, 0xAD00, 0xB800, 0xB900, 0xBC00, 0xBD00, 0xE800, 0xE900}; //Variables for 7-seg display initially set to 0
 int prevPA0, prevPD0 = 0, prevPD4=0; //holds previous value of PA0 for falling/rising edge purposes
-int counter = 0; //counter for objective 4
-int test=0;
+signed long int count = 0;
 
 //******************************************************************************
 //Main Function
@@ -38,7 +37,7 @@ void main() {
                CheckButton:
                     MOVW R0, #LO_ADDR(_val)             ;Puts the low address of num1 into R0
                     MOVT R0, #HI_ADDR(_val)             ;Puts the high address of num1 into R0
-                    LDR R2, [R0]                         ;puts the value of num1 into R2
+                    LDR R5, [R0]                         ;puts the value of num1 into R2
                     
                     MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
                     MOVT R0, #HI_ADDR(GPIOA_IDR+0)       ;Puts the high address of GPIOA_IDR into R0
@@ -52,12 +51,15 @@ void main() {
                     
                PAZero:
           }
-               if(counter == 0){
-                    GPIOE_ODR = 0xA000;
+//******************************************************************************
+//Bonus obj 2
+               if(count == 0){
+                    GPIOE_ODR = 0xA000;   //since we can't display a 10 when 0 is displayed the other displays 0
                     GPIOE_ODR = 0xA800;
                }else{
-                    GPIOE_ODR = num1[counter];
-                    GPIOE_ODR = num2[10 - counter];
+                    GPIOE_ODR = num1[count];            //when there's another value it looks at the array and displays the 
+                                                        //number that equals 10
+                    GPIOE_ODR = num2[10 - count];
                }
           asm{
                     MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
@@ -72,47 +74,47 @@ void main() {
 
                     MOVW R0, #LO_ADDR(_val)             ;Puts the low address of num1 into R0
                     MOVT R0, #HI_ADDR(_val)             ;Puts the high address of num1 into R0
-                    LDR R2, [R0]                         ;puts the value of num1 into R2
+                    LDR R5, [R0]                         ;puts the value of num1 into R2
 
-                    AND R3, R2, #0x800                   ;ANDs with hexidecimal 800 this is when just bit 11 is high
+                    AND R3, R5, #0x800                   ;ANDs with hexidecimal 800 this is when just bit 11 is high
                     CMP R3, #0x800                       ;looks for if bit 11 is high in GPIOA
                     BEQ SetLow                           ;if it is jumps to setlow
                     B SetHigh                            ;if not jumps to sethigh
 
                SetLow:
                     MOVW R4, #0xF7FF                     ;sets bit 11 low
-                    AND R2, R4
+                    AND R5, R4
                B Display
 
                SetHigh:
-                    ADD R2, #0x800                       ;sets bit 11 high
+                    ADD R5, #0x800                       ;sets bit 11 high
                B Display
 
                Display:
                     MOVW R0, #LO_ADDR(GPIOE_ODR+0)  ;Get the low address of GPIOE_ODR
                     MOVT R0, #HI_ADDR(GPIOE_ODR+0)  ;Get the high address of GPIOE_ODR
-                    STR R2, [R0]                    ;Puts the value that is saved in R2 into the register whos address is saved in
+                    STR R5, [R0]                    ;Puts the value that is saved in R2 into the register whos address is saved in
 
                     MOVW R0, #LO_ADDR(_val)       ;Puts the low address of num1 into R0
                     MOVT R0, #HI_ADDR(_val)       ;Puts the high address of num1 into R0
-                    STR R2, [R0]                   ;puts the value of num1 into R2
+                    STR R5, [R0]                   ;puts the value of num1 into R2
           }
 
 //******************************************************************************
 //objective 4
-          if(GPIOD_IDR.B0 == 1 & PrevPD0 == 0){
-               counter++;
+          if(GPIOD_IDR.B0 == 1 & PrevPD0 == 0){   //looks for the rising edge of when PD0 is pressed
+               count++;                           //adds one to count  and sets prevpd0
                PrevPD0 = 1;
-              if(counter > 9) counter = 0;
+              if(count > 9){ count = 0;}         //if the count goes above 9 it gets reset to 0
           }
-          if(GPIOD_IDR.B4 == 1 & PrevPD4 == 0){
-              counter--;
+          if(GPIOD_IDR.B4 == 1 & PrevPD4 == 0){  //looks for rising edge of when PD4 is pressed
+              count--;                           //takes one away from count and sets prevPD4 to 1
               PrevPD4 = 1;
-              if(counter < 0) counter = 9;
+              if(count < 0){count = 9;}          //if it goes below 0 the count bounces up to 9
           }
-          if(GPIOE_ODR.B11 == 0){
-               switch (counter) {
-                    case 0: val = 0xA000; break;
+          if(GPIOE_ODR.B11 == 0){                 //checks which display is being used
+               switch (count) {
+                    case 0: val = 0xA000; break;     //switch case that changes what number is displayed based on the count
                     case 1: val = num1[1]; break;
                     case 2: val = num1[2]; break;
                     case 3: val = num1[3]; break;
@@ -124,9 +126,9 @@ void main() {
                     case 9: val = num1[9]; break;
                }
           }
-          if(GPIOE_ODR.B11 == 1){
-               switch (counter) {
-                    case 0: val = num2[0]; break;
+          if(GPIOE_ODR.B11 == 1){                 //checks which display is being used
+               switch (count) {
+                    case 0: val = num2[0]; break;    //switch case that changes what number is being displayed based on count
                     case 1: val = num2[1]; break;
                     case 2: val = num2[2]; break;
                     case 3: val = num2[3]; break;
@@ -138,14 +140,11 @@ void main() {
                     case 9: val = num2[9]; break;
                }
           }
-          if(GPIOD_IDR.B0 == 0 & PrevPD0 == 1){
+          if(GPIOD_IDR.B0 == 0 & PrevPD0 == 1){         //once PD0 is release prevPD0 gets set to 0
                    prevPD0 = 0;
           }
-          if(GPIOD_IDR.B4 == 0 & PrevPD4 == 1){
+          if(GPIOD_IDR.B4 == 0 & PrevPD4 == 1){       //once PD4 is released prevPD4 gets set to 0
                    prevPD4 = 0;
           }
-//******************************************************************************
-//Bonus Objective 2
-
      }
 }
