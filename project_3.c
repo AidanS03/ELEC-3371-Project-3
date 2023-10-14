@@ -19,7 +19,7 @@ void main() {
 //Initializations
      RCC_APB2ENR |= 1 << 2;  //enables clock for PortA
      RCC_APB2ENR |= 1 << 5;  //enables clock for PortD
-     RCC_APB2ENR |= 1 << 6;  //enables clock for PortD    need to choose output port and enable it
+     RCC_APB2ENR |= 1 << 6;  //enables clock for PortE    need to choose output port and enable it
      
      GPIOA_CRL = 0x44444444; //Set PortA as an input
      GPIOA_CRH = 0x44444444;
