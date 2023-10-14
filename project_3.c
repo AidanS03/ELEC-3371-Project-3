@@ -51,6 +51,15 @@ void main() {
                     BNE Display
                     
                PAZero:
+          }
+               if(counter == 0){
+                    GPIOE_ODR = 0xA000;
+                    GPIOE_ODR = 0xA800;
+               }else{
+                    GPIOE_ODR = num1[counter];
+                    GPIOE_ODR = num2[10 - counter];
+               }
+          asm{
                     MOVW R0, #LO_ADDR(GPIOA_IDR+0)       ;Puts the low address of GPIOA_IDR into R0
                     MOVT R0, #HI_ADDR(GPIOA_IDR+0)       ;Puts the high address of GPIOA_IDR into R0
                     LDR R1, [R0]                         ;Loads the value saved in R1 into the register with its address saved in R0, in
@@ -103,7 +112,7 @@ void main() {
           }
           if(GPIOE_ODR.B11 == 0){
                switch (counter) {
-                    case 0: val = num1[0]; break;
+                    case 0: val = 0xA000; break;
                     case 1: val = num1[1]; break;
                     case 2: val = num1[2]; break;
                     case 3: val = num1[3]; break;
